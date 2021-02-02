@@ -1,5 +1,3 @@
-const Web3 = require("web3");
-
 App = {
   loading: false,
   contracts: {},
@@ -51,6 +49,8 @@ App = {
   },
 
   loadAccount: async () => {
+    // Set the current blockchain account
+    web3.eth.defaultAccount = web3.eth.accounts[0];
     App.account = web3.eth.accounts[0];
   },
 
@@ -87,6 +87,7 @@ App = {
     // Load the total task count from the blockchain
     const taskCount = await App.todoList.taskCount();
     const $taskTemplate = $(".taskTemplate");
+
     // Render out each task with a new task template
     for (var i = 1; i <= taskCount; i++) {
       // Fetch the task data from the blockchain
@@ -101,8 +102,8 @@ App = {
       $newTaskTemplate
         .find("input")
         .prop("name", taskId)
-        .prop("checked", taskCompleted);
-      // .on("click", App.toggleCompleted);
+        .prop("checked", taskCompleted)
+        .on("click", App.toggleCompleted);
 
       // Put the task in the correct list
       if (taskCompleted) {
@@ -114,6 +115,13 @@ App = {
       // Show the task
       $newTaskTemplate.show();
     }
+  },
+
+  createTask: async () => {
+    App.setLoading(true);
+    const content = $("#newTask").val();
+    await App.todoList.createTask(content);
+    window.location.reload();
   },
 
   setLoading: (boolean) => {
